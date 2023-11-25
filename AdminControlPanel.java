@@ -17,6 +17,8 @@ public class AdminControlPanel {
     private static AdminControlPanel instance;
     public static int numUsers;
     public static int numGroups;
+    public static int numMessages;
+    public static int numPositivePercentage;
 
     // Singleton PAttern for AdminControlPanel GUI
     public static AdminControlPanel getInstance() {
@@ -143,19 +145,17 @@ public class AdminControlPanel {
             }
         });
 
-        String messages = "5 messages";
         showMessagesTotal.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, messages);
+                JOptionPane.showMessageDialog(null, numMessages);
             }
         });
 
-        String percent = "40%";
         showPostitivePercentage.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, percent);
+                JOptionPane.showMessageDialog(null, numPositivePercentage);
             }
         });
 
