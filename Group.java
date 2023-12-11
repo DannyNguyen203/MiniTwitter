@@ -1,3 +1,9 @@
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -7,11 +13,13 @@ public class Group implements TreeNode{
     private ArrayList<String> members;
     private DefaultMutableTreeNode node;
     private java.util.List<TreeNode> children;
+    private long creationTime;
 
     Group (String ID){
         this.groupID = ID;
         this.node = new DefaultMutableTreeNode(ID);
         this.children = new java.util.ArrayList<>();
+        this.creationTime = System.currentTimeMillis();
     }
 
     @Override
@@ -21,6 +29,10 @@ public class Group implements TreeNode{
 
     public void addMember(String groupMember){
         members.add(groupMember);
+    }
+
+    public long getCreationTime(){
+        return this.creationTime;
     }
 
     public ArrayList<String> getMembers(){

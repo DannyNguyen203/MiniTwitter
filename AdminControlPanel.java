@@ -1,3 +1,4 @@
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -11,6 +12,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
+import javax.swing.tree.TreeNode;
+
 
 public class AdminControlPanel {
 
@@ -47,6 +51,8 @@ public class AdminControlPanel {
         JButton addUserButton = new JButton("Add User");
         JButton addGroupButton = new JButton("Add Group");
         JButton openUserView = new JButton("Open User View");
+        JButton validateUsersButton = new JButton("Validate Users");
+        JButton findLastUpdatedUser = new JButton("Find Last Updated User");
         JButton showUserTotal = new JButton("Show User Total");
         JButton showGroupTotal = new JButton("Show Group Total");
         JButton showMessagesTotal = new JButton("Show Messages Total");
@@ -69,6 +75,8 @@ public class AdminControlPanel {
         addUserTextField.setBounds(360,10,150,50);
 
         openUserView.setBounds(360, 130, 320, 50);
+        validateUsersButton.setBounds(360, 190, 320, 50);
+        findLastUpdatedUser.setBounds(360, 250, 320, 50);
 
 
         // Statistics GUI
@@ -83,6 +91,8 @@ public class AdminControlPanel {
         frame.add(addGroupTextField);
         frame.add(addGroupButton);
         frame.add(openUserView);
+        frame.add(validateUsersButton);
+        frame.add(findLastUpdatedUser);
         frame.add(showGroupTotal);
         frame.add(showMessagesTotal);
         frame.add(showPostitivePercentage);
@@ -148,7 +158,13 @@ public class AdminControlPanel {
         showMessagesTotal.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, numMessages);
+                // Perform an action when the button is clicked
+                DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+                if (selectedNode.getUserObject() instanceof User ){
+                    int numMessages = ((User)selectedNode.getUserObject()).getNewsFeed().size();
+                    JOptionPane.showMessageDialog(null, numMessages);
+                }
+                
             }
         });
 
@@ -166,6 +182,66 @@ public class AdminControlPanel {
                 DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
                 User user = (User) selectedNode.getUserObject();
                 UserView userView = new UserView(user,tree,treeModel);
+            }
+        });
+
+
+        validateUsersButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ArrayList uniqueIDs = new ArrayList<String>();
+                boolean haveDuplicate = loopThroughTree((DefaultMutableTreeNode) treeModel.getRoot(), uniqueIDs);
+                JOptionPane.showMessageDialog(null, haveDuplicate);
+            }
+
+            private boolean loopThroughTree(DefaultMutableTreeNode node, ArrayList IDList) {
+            // Check if the node is not null
+                if (node != null) {
+                    String userID = node.getUserObject().toString();
+                    if (!IDList.contains(userID)){
+                        IDList.add(userID);
+                    } else {
+                        return false;
+                    }
+                    
+                    Enumeration<TreeNode> children = node.children();
+                    while (children.hasMoreElements()) {
+                        DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) children.nextElement();
+                        loopThroughTree(childNode, IDList);
+                    }
+                }
+                return true;
+            }
+        });
+
+        findLastUpdatedUser.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e){
+                String lastUpdatedUser = findLatestUpdatedUserRecursively((DefaultMutableTreeNode) treeModel.getRoot()).toString();
+                JOptionPane.showMessageDialog(null, lastUpdatedUser);
+            }
+
+            private static User findLatestUpdatedUserRecursively(DefaultMutableTreeNode node) {
+                User latestUpdatedUser = null;
+        
+                if (node.getUserObject() instanceof User) {
+                    User currentUser = (User) node.getUserObject();
+                    if (latestUpdatedUser == null || currentUser.getLastUpdateTime() > latestUpdatedUser.getLastUpdateTime()) {
+                        latestUpdatedUser = currentUser;
+                    }
+                }
+        
+                for (int i = 0; i < node.getChildCount(); i++) {
+                    TreeNode child = node.getChildAt(i);
+                    if (child instanceof DefaultMutableTreeNode) {
+                        User childLatestUpdatedUser = findLatestUpdatedUserRecursively((DefaultMutableTreeNode) child);
+                        if (latestUpdatedUser == null || (childLatestUpdatedUser != null && childLatestUpdatedUser.getLastUpdateTime() > latestUpdatedUser.getLastUpdateTime())) {
+                            latestUpdatedUser = childLatestUpdatedUser;
+                        }
+                    }
+                }
+        
+                return latestUpdatedUser;
             }
         });
 

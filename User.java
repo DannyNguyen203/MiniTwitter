@@ -1,3 +1,9 @@
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import javax.swing.DefaultListModel;
@@ -12,6 +18,8 @@ public class User implements TreeNode{
     private ArrayList<String> newsFeed;
     private ArrayList<UserObserver> observers = new ArrayList<UserObserver>();
     private DefaultMutableTreeNode node;
+    private long creationTime;
+    private long lastUpdateTime;
 
 
     User (String ID){
@@ -20,6 +28,8 @@ public class User implements TreeNode{
         this.following = new ArrayList<String>();
         this.newsFeed = new ArrayList<String>();
         this.node = new DefaultMutableTreeNode(ID);
+        this.creationTime = System.currentTimeMillis();
+        this.lastUpdateTime = System.currentTimeMillis();
     }
 
     public void notify(String tweet){
@@ -29,12 +39,21 @@ public class User implements TreeNode{
 
     @Override
     public String toString() {
-        return userID; // Display the username in the JTree
+        return this.userID; // Display the username in the JTree
     }
 
     public String getUserID(){
-        return userID;
+        return this.userID;
     }
+
+    public long getCreationTime(){
+        return this.creationTime;
+    }
+
+    public long getLastUpdateTime(){
+        return this.lastUpdateTime;
+    }
+
 
     public ArrayList<String> getFollowing (){
         return this.following;
@@ -71,7 +90,7 @@ public class User implements TreeNode{
 
     @Override
     public void addChild(TreeNode child) {
-        // Leaves do not have children
+        node.add((DefaultMutableTreeNode) child);
     }
 
     @Override

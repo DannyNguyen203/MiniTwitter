@@ -3,6 +3,7 @@ import java.awt.*;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -14,6 +15,8 @@ import javax.swing.tree.TreeNode;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
@@ -31,12 +34,17 @@ public class UserView implements UserObserver{
     JScrollPane followListScrollPane;
     JList<String> newsFeedJList;
     JScrollPane newsFeedPanel;
+    JLabel lastUpdatedLabel;
     
 
     public UserView(User user, JTree tree, DefaultTreeModel treeModel){
-        frame.setTitle(user.toString());
+        long currentTime = user.getCreationTime();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm:ss");
+        Date date = new Date(currentTime);
+        String time = simpleDateFormat.format(date);
+        frame.setTitle(user.toString() + " " + time);
         frame.setResizable(false);
-        frame.setSize(500, 500);
+        frame.setSize(510, 540);
         frame.setLayout(null);
         user.addObserver(this);
 
@@ -62,12 +70,17 @@ public class UserView implements UserObserver{
         followListScrollPane.setBounds(10,70,480,150);
         newsFeedPanel.setBounds(10,290,480, 170);
 
+        lastUpdatedLabel = new JLabel();
+        lastUpdatedLabel.setText("Last updated: " + time);
+        lastUpdatedLabel.setBounds(10, 470, 480, 20);
+
         frame.add(followUserButton);
         frame.add(followUserText);
         frame.add(postTweetButton);
         frame.add(postTweetText);
         frame.add(followListScrollPane);
         frame.add(newsFeedPanel);
+        frame.add(lastUpdatedLabel);
         frame.setVisible(true);
 
 
@@ -97,7 +110,12 @@ public class UserView implements UserObserver{
 
     @Override
     public void notifyTweet(User user){
-        newsFeedModel.addElement(user.getNewsFeed().get(user.getNewsFeed().size()-1)); 
+        newsFeedModel.addElement(user.getNewsFeed().get(user.getNewsFeed().size()-1));
+        long currentTime = System.currentTimeMillis();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm:ss");
+        Date date = new Date(currentTime);
+        String time = simpleDateFormat.format(date);
+        lastUpdatedLabel.setText("Last updated: " + time);
         newsFeedJList.repaint();
     }
     
